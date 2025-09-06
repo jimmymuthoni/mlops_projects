@@ -2,21 +2,19 @@ import traceback
 import sys
 
 class CustomException(Exception):
-    """Exception handling class"""
-    def __init__(self, error_message, error_details:sys):
+
+    def __init__(self, error_message, error_detail:sys):
         super().__init__(error_message)
-        self.error_message = self.get_detailed_error_message(error_message, error_details)
+        self.error_message = self.get_detailed_error_message(error_message,error_detail)
 
     @staticmethod
-    def get_detailed_error_message(error_message, error_details:sys):
-      _, _, ext_tb = error_details.exc_info()
-      file_name = ext_tb.tb_frame.f_code.co_filename
-      line_number = ext_tb.tb_lineno
+    def get_detailed_error_message(error_message , error_detail:sys):
 
-      return f"Error in {file_name}, line {line_number} : {error_message}"
+        _, _, exc_tb = traceback.sys.exc_info()
+        file_name = exc_tb.tb_frame.f_code.co_filename
+        line_number = exc_tb.tb_lineno
+
+        return f"Error in {file_name} , line {line_number} : {error_message}"
     
     def __str__(self):
-       return self.error_message
-
-
-        
+        return self.error_message
