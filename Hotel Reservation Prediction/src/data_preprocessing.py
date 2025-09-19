@@ -53,8 +53,27 @@ class DataProcessor:
                 df[column] = np.log1p(df[column])
             return df
         except Exception as e:
-            logger.error(f"Error during preprocess step")
-            raise CustomException("Error while preprocess data")
+            logger.error(f"Error during preprocess step {e}")
+            raise CustomException("Error while preprocess data", e)
+        
+    def balance_data(self, df):
+        try:
+            logger.info("Handling imbalanced data")
+
+            X = df.drop(columns='booking_status')
+            y = df['booking_status']
+            smote = SMOTE(random_state=42)
+            X_resampled, y_resampled = smote.fit_resample(X, y)
+            balanced_df = pd.DataFrame(X_resampled, columns=X.columns)
+            balanced_df['booking_status'] = y_resampled 
+
+            logger.info("Data balance successfully")
+            return balanced_df
+        except Exception as e:
+            logger.error(f"Error during data balancing step {e}")
+            raise CustomException("Error while data balancing", e)
+    
+    
 
 
             
