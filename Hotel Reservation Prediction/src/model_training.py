@@ -48,7 +48,34 @@ class ModelTraining:
     def train_lgbm(self, X_train, y_train):
         try:
             logger.info("Initializing our model")
-            
+            lgbm_model = lgb.LGBMClassifier(random_state=self.random_search_params["random_state"])
+
+            logger.info("Starting hyperparamater tuning")
+
+            random_search = RandomizedSearchCV(
+                estimator=lgbm_model,
+                param_distributions=self.param_dist,
+                n_iter=self.random_search_params['n_iter'],
+                cv=self.random_search_params['cv'],
+                n_jobs=self.random_search_params['n_jobs'],
+                verbose=self.random_search_params['verbose'],
+                random_state=self.random_search_params['random_state'],
+                scoring=self.random_search_params["scoring"]
+            )
+
+            logger.info("Starting our model training")
+            random_search.fit(X_train, y_train)
+
+            logger.info("Hyperparameter tuning completed")
+            best_params = random_search.best_params_
+            best_lgbm_model = random_search.best_estimator_
+            logger.info(f"Best parameters are: {best_params}")
+        
+            return best_lgbm_model
+        except Exception as e:
+            logger.error(f"Error while loading the data {e}")
+            raise CustomException("Failed to load the data", e)
+        
 
 
 
