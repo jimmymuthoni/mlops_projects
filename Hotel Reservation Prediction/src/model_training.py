@@ -1,5 +1,4 @@
 import os
-import pandas
 import joblib
 from sklearn.model_selection import RandomizedSearchCV
 import lightgbm as lgb
@@ -73,8 +72,72 @@ class ModelTraining:
         
             return best_lgbm_model
         except Exception as e:
-            logger.error(f"Error while loading the data {e}")
-            raise CustomException("Failed to load the data", e)
+            logger.error(f"Error while training model {e}")
+            raise CustomException("Failed to train model", e)
+        
+    def model_evaluation(self, model, X_test, y_test):
+        try:
+            logger.info("Evaluating our model")
+
+            y_pred = model.predict(X_test)
+            accuracy = accuracy_score(y_test, y_pred)
+            precision = precision_score(y_test, y_pred)
+            recall = recall_score(y_test, y_pred)
+            f1 = f1_score(y_test, y_pred)
+             
+            logger.info(f"Accuracy Score: {accuracy}")
+            logger.info(f"Prcecision Score: {precision}")
+            logger.info(f"Recal Score: {recall}")
+            logger.info(f"F1 Score: {f1}")
+
+            return {
+                "accuracy": accuracy,
+                "precision": precision,
+                "Recall": recall,
+                "f1": f1
+            }
+        except Exception as e:
+            logger.error("Error while evaluating model")
+            raise CustomException("Failed to evaluate the model")
+    
+    def save_model(self, model):
+        try:
+            os.makedirs(os.path.dirname(self.model_output), exist_ok=True)
+            logger.info("saving the model")
+
+            joblib.dump(model, self.model_output)
+            logger.info(f"Model saved to {self.model_output}")
+        except Exception as e:
+            logger.error("Error in saving the model")
+            raise CustomException("Failed to save the model", e)
+        
+    def run(self):
+        try:
+            logger.info("Running model training pipeline")
+            
+            X_train, y_train, X_test, y_test = self.load_and_split()
+            best_lgbm_model = self.train_lgbm(X_train, y_train)
+            metrics = self.model_evaluation(best_lgbm_model, X_test, y_test)
+            self.save_model(best_lgbm_model)
+
+            logger.info("Model Training successfuly completed")
+        except Exception as e:
+            logger.error(f"Error while running model trainig pipeline {e}")
+            raise CustomException("Failed to run training pipeline", e)
+        
+    
+if __name__ == "__main__":
+    trainer = ModelTraining(PROCESSED_TRAIN_DATA_PATH, PROCESSED_TEST_DATA_PATH,MODEL_OUTPUT_PATH)
+    trainer.run()
+        
+
+    
+        
+
+
+
+
+            
         
 
 
