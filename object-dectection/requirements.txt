@@ -1,0 +1,16 @@
+pandas
+numpy
+setuptools
+kagglehub
+opencv-python-headless
+tensorboard
+dvc
+fastapi[all]
+uvicorn
+Pillow
+
+
+torch==2.3.1+cpu
+torchvision==0.18.1+cpu
+torchaudio==2.3.1+cpu
+-f https://download.pytorch.org/whl/torch_stable.html
