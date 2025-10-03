@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+*.egg-info/
+venv/
+artifacts/
+logs/
+custom_object_detection.egg-info
