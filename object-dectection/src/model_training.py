@@ -1,4 +1,5 @@
 import os
+import time
 import torch
 from src.custom_exception import CustomException
 from src.logger import get_logger
@@ -7,6 +8,7 @@ from src.data_processing import GunData
 from torch.utils.data import Dataset
 from torch import optim
 from torch.utils.data import DataLoader, random_split
+from torch.utils.tensorboard import SummaryWriter
 
 
 logger = get_logger(__name__)
@@ -22,6 +24,13 @@ class ModelTrainig:
         self.epochs = epochs
         self.dataset_path = dataset_path
         self.device = device
+
+        #teansorboard
+        timestamp = time.strftime("%Y%m%d-%H%M%S")
+        self.log_dir = f"tensorboard_logs/{timestamp}" 
+        os.makedirs(self.log_dir, exist_ok=True)
+
+        self.writter = SummaryWriter(log_dir = self.log_dir)
         
         try:
             self.model = model_class(self.num_classes, self.device).model
@@ -76,11 +85,16 @@ class ModelTrainig:
                             logger.error("Error in capturing losses...")
                             raise ValueError("Total loss value is zero..")
                         
+                        self.writter.add_scalar("Loss/train", total_loss.item(), epoch*len(train_loader)+i)
+                        
                     else:
                         total_loss = losses[0]
+                        self.writter.add_scalar("Loss/train", total_loss.item(), epoch*len(train_loader)+i)
 
                     total_loss.backward()
                     self.optimizer.step()
+
+                self.writer.flush()
 
                 self.model.eval()
                 with torch.no_grad():
